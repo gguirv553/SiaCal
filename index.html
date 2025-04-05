@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبه درصد آزمون</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Lalezar&family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans', 'Roboto', 'Lalezar', 'Vazirmatn', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        
+        body.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            background-color: #2d2d2d;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            padding: 35px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .container.active {
+            display: block;
+        }
+        
+        .light-mode .container {
+            background-color: #ffffff;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+        
+        h1, h2, h3 {
+            color: #60a5fa;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 26px;
+            font-weight: 500;
+        }
+        
+        .light-mode h1, 
+        .light-mode h2, 
+        .light-mode h3 {
+            color: #2563eb;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #b0b0b0;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .light-mode label {
+            color: #666;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #4b5563;
+            border-radius: 12px;
+            font-size: 16px;
+            background-color: #374151;
+            color: #e0e0e0;
+        }
+        
+        .light-mode input {
+            background-color: #f0f0f0;
+            color: #333;
+            border-color: #ccc;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
+        }
+        
+        .light-mode input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #b0b0b0;
+            font-size: 16px;
+        }
+        
+        .light-mode .checkbox-group {
+            color: #666;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-left: 12px;
+        }
+        
+        .penalty-options {
+            margin-right: 30px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .penalty-options.active {
+            display: block;
+        }
+        
+        .penalty-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .penalty-option input {
+            width: auto;
+            margin-left: 12px;
+        }
+        
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        button:hover {
+            background-color: #2563eb;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        
+        .history-btn {
+            background-color: #4b5563;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.3);
+        }
+        
+        .light-mode .history-btn {
+            background-color: #e0e0e0;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-btn:hover {
+            background-color: #374151;
+        }
+        
+        .light-mode .history-btn:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .clear-history-btn {
+            background-color: #ef4444;
+            margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .clear-history-btn:hover {
+            background-color: #dc2626;
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        }
+        
+        .theme-toggle-btn, .font-toggle-btn {
+            background-color: #4b5563;
+            position: fixed;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-toggle-btn {
+            top: 20px;
+        }
+        
+        .font-toggle-btn {
+            top: 70px;
+        }
+        
+        .light-mode .theme-toggle-btn, 
+        .light-mode .font-toggle-btn {
+            background-color: #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .font-menu {
+            position: fixed;
+            top: 120px;
+            left: 20px;
+            background-color: #2d2d2d;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .light-mode .font-menu {
+            background-color: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .font-menu.active {
+            display: block;
+        }
+        
+        .font-option {
+            padding: 10px;
+            cursor: pointer;
+            color: #e0e0e0;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .light-mode .font-option {
+            color: #333;
+        }
+        
+        .font-option:hover {
+            background-color: #4b5563;
+        }
+        
+        .light-mode .font-option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        .light-mode .result-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .result-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .result-box {
+            background-color: #2d2d2d;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            color: #e0e0e0;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .light-mode .result-box {
+            background-color: #ffffff;
+            color: #333;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .result-overlay.active .result-box {
+            transform: scale(1);
+        }
+        
+        .percentage {
+            font-size: 50px;
+            font-weight: 500;
+            color: #3b82f6;
+            margin: 20px 0;
+        }
+        
+        .light-mode .percentage {
+            color: #2563eb;
+        }
+        
+        .message {
+            font-size: 18px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        .light-mode .message {
+            color: #666;
+        }
+        
+        .alternative-result {
+            font-size: 16px;
+            color: #9ca3af;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #4b5563;
+            font-weight: 400;
+        }
+        
+        .light-mode .alternative-result {
+            color: #666;
+            border-top-color: #ccc;
+        }
+        
+        .history-container {
+            background-color: #2d2d2d;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            padding: 35px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .history-container.active {
+            display: block;
+        }
+        
+        .light-mode .history-container {
+            background-color: #ffffff;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+        
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background-color: #4b5563;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        
+        .light-mode .history-item {
+            background-color: #e0e0e0;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-top: 8px;
+            text-align: right;
+            font-weight: 400;
+        }
+        
+        .light-mode .info-text {
+            color: #888;
+        }
+        
+        .help-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #3b82f6;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: 500;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+        
+        .light-mode .help-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .help-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .help-box {
+            background-color: #2d2d2d;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: right;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            color: #e0e0e0;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .light-mode .help-box {
+            background-color: #ffffff;
+            color: #333;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .help-box h2 {
+            text-align: right;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .help-box p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="container active" id="mainContainer">
+        <h1>محاسبه درصد آزمون</h1>
+        
+        <div class="input-group">
+            <label for="total">تعداد کل سوالات</label>
+            <input type="number" id="total" placeholder="مثال: 50" min="1">
+            <p class="info-text">تعداد کل سوالات آزمون را وارد کنید</p>
+        </div>
+        
+        <div class="input-group">
+            <label for="correct">تعداد پاسخ‌های صحیح</label>
+            <input type="number" id="correct" placeholder="مثال: 35" min="0">
+            <p class="info-text">تعداد پاسخ‌هایی که درست جواب داده‌اید</p>
+        </div>
+        
+        <div class="input-group">
+            <label for="wrong">تعداد پاسخ‌های غلط</label>
+            <input type="number" id="wrong" placeholder="مثال: 10" min="0">
+            <p class="info-text">تعداد پاسخ‌هایی که اشتباه جواب داده‌اید</p>
+        </div>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="penalty">
+            <label for="penalty">محاسبه با احتساب نمره منفی</label>
+        </div>
+        
+        <div class="penalty-options" id="penaltyOptions">
+            <div class="penalty-option">
+                <input type="radio" id="penalty3" name="penaltyRate" value="3" checked>
+                <label for="penalty3">هر 3 پاسخ غلط، 1 پاسخ صحیح (ضریب 1/3)</label>
+            </div>
+            <p class="info-text">نحوه محاسبه نمره منفی را انتخاب کنید</p>
+        </div>
+        
+        <button onclick="calculatePercentage()">محاسبه درصد</button>
+        <button class="history-btn" onclick="showHistory()">نمایش تاریخچه</button>
+    </div>
+    
+    <div class="history-container" id="historyContainer">
+        <h3>تاریخچه محاسبات</h3>
+        <div class="history-list" id="historyList"></div>
+        <button class="clear-history-btn" onclick="clearHistory()">پاک کردن تاریخچه</button>
+        <button onclick="showMain()">بازگشت به محاسبه</button>
+    </div>
+    
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-box">
+            <h2>نتیجه محاسبه</h2>
+            <div class="percentage" id="percentageResult">0%</div>
+            <p class="message" id="messageResult"></p>
+            <div class="alternative-result" id="alternativeResult"></div>
+        </div>
+    </div>
+    
+    <div class="help-overlay" id="helpOverlay">
+        <div class="help-box">
+            <h2>راهنمای محاسبه درصد</h2>
+            <p>1. تعداد کل سوالات آزمون را وارد کنید (مثلاً 50 سوال)</p>
+            <p>2. تعداد پاسخ‌های صحیح خود را وارد کنید</p>
+            <p>3. تعداد پاسخ‌های غلط خود را وارد کنید</p>
+            <p>4. در صورت وجود نمره منفی، گزینه مربوطه را فعال کنید</p>
+            <p>5. در صورت فعال بودن نمره منفی، ضریب 1/3 اعمال می‌شود:</p>
+            <p>- هر 3 پاسخ غلط، 1 پاسخ صحیح کسر می‌شود</p>
+            <p>6. دکمه "محاسبه درصد" را بزنید تا نتیجه را ببینید</p>
+            <p>7. می‌توانید تاریخچه محاسبات خود را مشاهده کنید</p>
+            <button onclick="closeHelp()">بستن راهنما</button>
+        </div>
+    </div>
+    
+    <div class="font-menu" id="fontMenu">
+        <div class="font-option" onclick="changeFont('Noto Sans')">Noto Sans</div>
+        <div class="font-option" onclick="changeFont('Roboto')">Roboto</div>
+        <div class="font-option" onclick="changeFont('Lalezar')">Lalezar</div>
+        <div class="font-option" onclick="changeFont('Vazirmatn')">Vazirmatn</div>
+    </div>
+    
+    <div class="help-btn" onclick="showHelp()">؟</div>
+    <div class="theme-toggle-btn" id="themeToggleBtn"></div>
+    <div class="font-toggle-btn" id="fontToggleBtn"></div>
+
+    <script>
+        let calculationHistory = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+        
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const fontToggleBtn = document.getElementById('fontToggleBtn');
+        const fontMenu = document.getElementById('fontMenu');
+        const body = document.body;
+        
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+        }
+        
+        const savedFont = localStorage.getItem('font');
+        if (savedFont) {
+            document.body.style.fontFamily = savedFont; // اعمال فونت ذخیره‌شده
+        }
+        
+        themeToggleBtn.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            localStorage.setItem('theme', body.classList.contains('light-mode') ? 'light' : 'dark');
+        });
+        
+        fontToggleBtn.addEventListener('click', () => {
+            fontMenu.classList.toggle('active');
+        });
+        
+        document.getElementById('penalty').addEventListener('change', function() {
+            const penaltyOptions = document.getElementById('penaltyOptions');
+            penaltyOptions.classList.toggle('active', this.checked);
+        });
+
+        function changeFont(font) {
+            // اعمال فونت به کل سند
+            document.body.style.fontFamily = font;
+            // ذخیره فونت انتخاب‌شده
+            localStorage.setItem('font', font);
+            // بستن منو
+            fontMenu.classList.remove('active');
+        }
+
+        function calculatePercentage() {
+            const total = parseInt(document.getElementById('total').value);
+            const correct = parseInt(document.getElementById('correct').value);
+            const wrong = parseInt(document.getElementById('wrong').value);
+            const penalty = document.getElementById('penalty').checked;
+            const penaltyRate = 3;
+
+            if (isNaN(total) || isNaN(correct) || isNaN(wrong) || total <= 0 || correct < 0 || wrong < 0) {
+                alert("لطفاً مقادیر معتبر وارد کنید!");
+                return;
+            }
+            
+            if (correct + wrong > total) {
+                alert("مجموع پاسخ‌های صحیح و غلط نمی‌تواند بیشتر از کل سوالات باشد!");
+                return;
+            }
+
+            let percentage;
+            let alternativePercentage = null;
+            
+            if (penalty) {
+                const netCorrect = correct - (wrong / penaltyRate);
+                percentage = (netCorrect / total) * 100;
+                if (wrong > 0) {
+                    alternativePercentage = (correct / total) * 100;
+                }
+            } else {
+                percentage = (correct / total) * 100;
+                if (wrong > 0) {
+                    const netCorrect = correct - (wrong / 3);
+                    alternativePercentage = (netCorrect / total) * 100;
+                }
+            }
+            
+            percentage = Math.max(0, Math.min(100, percentage));
+            if (alternativePercentage !== null) {
+                alternativePercentage = Math.max(0, Math.min(100, alternativePercentage));
+            }
+            
+            document.getElementById('percentageResult').textContent = percentage.toFixed(1) + '%';
+            
+            const message = document.getElementById('messageResult');
+            if (percentage >= 80) {
+                message.textContent = "عالی بودی رفیق! همینجوری ادامه بده.";
+            } else if (percentage >= 50) {
+                message.textContent = "خوبه، ولی می‌تونی بهترم بشی!";
+            } else {
+                message.textContent = "یه کم بیشتر تلاش کن، حتما نتیجه می‌گیری!";
+            }
+            
+            const alternativeResult = document.getElementById('alternativeResult');
+            if (alternativePercentage !== null) {
+                alternativeResult.innerHTML = penalty 
+                    ? `بدون احتساب نمره منفی: <strong>${alternativePercentage.toFixed(1)}%</strong>`
+                    : `با نمره منفی (1/3): <strong>${alternativePercentage.toFixed(1)}%</strong>`;
+            } else {
+                alternativeResult.innerHTML = '';
+            }
+            
+            const historyItem = {
+                date: new Date().toLocaleString('fa-IR'),
+                total: total,
+                correct: correct,
+                wrong: wrong,
+                penalty: penalty,
+                percentage: percentage.toFixed(1)
+            };
+            calculationHistory.unshift(historyItem);
+            if (calculationHistory.length > 10) {
+                calculationHistory = calculationHistory.slice(0, 10);
+            }
+            localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+            updateHistoryList();
+            
+            const resultOverlay = document.getElementById('resultOverlay');
+            resultOverlay.style.display = 'flex';
+            resultOverlay.classList.add('active');
+            setTimeout(() => {
+                resultOverlay.classList.remove('active');
+                setTimeout(() => {
+                    resultOverlay.style.display = 'none';
+                }, 300);
+            }, 3000);
+        }
+
+        function showHistory() {
+            document.getElementById('mainContainer').classList.remove('active');
+            document.getElementById('historyContainer').classList.add('active');
+            updateHistoryList();
+        }
+
+        function showMain() {
+            document.getElementById('historyContainer').classList.remove('active');
+            document.getElementById('mainContainer').classList.add('active');
+        }
+
+        function clearHistory() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید تاریخچه محاسبات را پاک کنید؟')) {
+                calculationHistory = [];
+                localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+                updateHistoryList();
+            }
+        }
+
+        function updateHistoryList() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<p>تاریخچه‌ای وجود ندارد</p>';
+                return;
+            }
+            
+            calculationHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div>تاریخ: ${item.date}</div>
+                    <div>صحیح: ${item.correct} | غلط: ${item.wrong} | کل: ${item.total}</div>
+                    ${item.penalty ? '<div>با نمره منفی (1/3)</div>' : ''}
+                    <div><strong>${item.percentage}%</strong></div>
+                `;
+                historyItem.style.fontFamily = document.body.style.fontFamily; // اعمال فونت به آیتم‌های تاریخچه
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function showHelp() {
+            document.getElementById('helpOverlay').classList.add('active');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
